@@ -21,7 +21,7 @@ pre_operations {
     ${
         when(incremental(),
             `SELECT max(timestamp) FROM ${self()}`,
-            `SELECT timestamp("2024-02-01")`)
+            `SELECT timestamp("2024-01-01")`)
     }
     )
 }
