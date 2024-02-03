@@ -4,7 +4,7 @@ config {
 }
 
 WITH
-  Project_Counts AS (
+  ProjectCounts AS (
   SELECT
     CAST(timestamp AS DATE) AS date,
     country_code,
@@ -34,7 +34,7 @@ WITH
     downloads,
     ROW_NUMBER() OVER (PARTITION BY date, country_code ORDER BY downloads DESC) AS rank
   FROM
-    Project_Counts)
+    ProjectCounts)
 SELECT
   date,
   country_code,
