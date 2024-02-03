@@ -1,0 +1,27 @@
+config {
+    type: "incremental"
+}
+
+SELECT
+  timestamp,
+  country_code,
+  file.project AS project_name,
+  file.version AS project_version,
+  details.python AS python_version,
+  details.installer.name AS installer_name,
+  details.distro.name AS distro
+FROM
+  `bigquery-public-data.pypi.file_downloads`
+WHERE
+  timestamp > timestamp_checkpoint
+
+pre_operations {
+  DECLARE
+    timestamp_checkpoint DEFAULT (
+    ${
+        when(incremental(),
+            `SELECT max(timestamp) FROM ${self()}`,
+            `SELECT timestamp("2024-02-01")`)
+    }
+    )
+}
