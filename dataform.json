@@ -1,0 +1,8 @@
+{
+  "defaultSchema": "pypi",
+  "assertionSchema": "dataform_assertions",
+  "warehouse": "bigquery",
+  "defaultDatabase": "ford-johnson",
+  "defaultLocation": "US"
+}
+    
