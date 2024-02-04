@@ -1,0 +1,34 @@
+config {
+    type: "table",
+    dependencies: ["ranking_by_day_and_country"]
+}
+
+WITH
+  Base AS (
+  SELECT
+    date,
+    country_code,
+    project_name,
+    downloads,
+    rank
+  FROM
+    ${ref("ranking_by_day_and_country")}),
+  PreviousDay AS (
+  SELECT
+    b.*,
+    p.downloads AS previous_day_downloads,
+    p.rank AS previous_day_rank
+  FROM
+    Base AS b
+  LEFT OUTER JOIN
+    Base AS p
+  ON
+    b.date = DATE_ADD(p.date, INTERVAL 1 DAY)
+    AND b.country_code = p.country_code
+    AND b.project_name = p.project_name )
+SELECT
+  *,
+  previous_day_downloads - downloads AS downloads_delta,
+  previous_day_rank - rank AS rank_delta
+FROM
+  PreviousDay
