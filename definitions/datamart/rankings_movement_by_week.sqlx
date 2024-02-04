@@ -1,0 +1,36 @@
+config {
+    type: "table",
+    dependencies: ["ranking_by_week"]
+}
+
+WITH
+  Base AS (
+  SELECT
+    week,
+    country_code,
+    project_name,
+    project_version,
+    downloads,
+    rank
+  FROM
+    ${ref("ranking_by_week")}),
+  PreviousDay AS (
+  SELECT
+    b.*,
+    p.downloads AS previous_day_downloads,
+    p.rank AS previous_day_rank
+  FROM
+    Base AS b
+  LEFT OUTER JOIN
+    Base AS p
+  ON
+    b.week = p.week + 1
+    AND b.country_code = p.country_code
+    AND b.project_name = p.project_name
+    AND b.project_version = p.project_version )
+SELECT
+  *,
+  previous_day_downloads - downloads AS downloads_delta,
+  previous_day_rank - rank AS rank_delta
+FROM
+  PreviousDay
