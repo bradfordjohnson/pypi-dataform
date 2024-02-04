@@ -1,0 +1,48 @@
+config {
+    type: "view",
+    dependencies: ["py"]
+}
+
+WITH
+  ProjectCounts AS (
+  SELECT
+    EXTRACT(ISOWEEK FROM timestamp) AS week,
+    country_code,
+    project_name,
+    project_version,
+    COUNT(project_name) AS downloads
+  FROM
+    ${ref("py")}
+  WHERE
+    country_code IN ('US',
+      'IN',
+      'DE',
+      'FR',
+      'CA',
+      'GB')
+  GROUP BY
+    1,
+    2,
+    3,
+    4),
+  Rankings AS (
+  SELECT
+    week,
+    country_code,
+    project_name,
+    project_version,
+    downloads,
+    ROW_NUMBER() OVER (PARTITION BY week, country_code ORDER BY downloads DESC) AS rank
+  FROM
+    ProjectCounts)
+SELECT
+  week,
+  country_code,
+  project_name,
+  project_version,
+  downloads,
+  rank
+FROM
+  Rankings
+WHERE
+  rank <= 50
